@@ -3,7 +3,7 @@ import re
 import sys
 
 def prog(texto):
-    match = re.findall(r'#+(.*?)(?:\\n|$)', texto) #necesito seleccionar el texto entre el(los) # y el salto de línea
+    match = re.findall(r'#+(.*?)\\n', texto) #necesito seleccionar el texto entre el(los) # y el salto de línea
     if(match):
         ret = f'\n'.join(match)
     else: 
