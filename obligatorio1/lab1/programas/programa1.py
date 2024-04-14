@@ -4,11 +4,8 @@ import sys
 
 def prog(texto):
     match = re.findall(r'@(\w+)', texto)
-    aux = list()
-    for usuario in match :
-        if usuario not in aux:
-            aux.append(usuario)
-    ret = '\n'.join(f"{usuario}" for usuario in aux)
+    aux = list(dict.fromkeys(match))
+    ret = '\n'.join(aux)
     return ret
 
 if __name__ == '__main__':
