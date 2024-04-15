@@ -4,12 +4,9 @@ import sys
 
 def prog(texto):
     match = re.findall(r'#+(.*?)\\n', texto) #necesito seleccionar el texto entre el(los) # y el salto de línea
-    if(match):
-        ret = f'\n'.join(match)
-    else: 
-        ret = ''
-    
-    return ret.strip()
+    ret = '\n'.join(match)
+
+    return ret
 
 if __name__ == '__main__':
     entrada = sys.argv[1]  # archivo entrada (param)

@@ -3,18 +3,12 @@ import re
 import sys
 
 def prog(texto):
-    match = re.findall(r'"user": "(.*)",', texto)
+    match = re.findall(r'"user": "(.*?)",', texto)
     aux = list()
-    contadores = {}
-    for usuario in match:
-        if usuario not in aux:
-            aux.append(usuario)
-            contadores[usuario] = 1
-        else:
-            contadores[usuario] = contadores[usuario] + 1
-    
-    ret = "\n".join([f"{usuario}: {contadores[usuario]}" for usuario in contadores])
-    return ret
+    for usuario in list(dict.fromkeys(match)):
+            apariciones = len(re.findall(f'"user": "{usuario}",', texto))
+            aux.append(f"{usuario}: {apariciones}")
+    return '\n'.join(aux)
 
 if __name__ == '__main__':
     entrada = sys.argv[1]  # archivo entrada (param)
