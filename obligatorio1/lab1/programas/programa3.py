@@ -8,6 +8,7 @@ def prog(texto):
 
     match = re.findall(r'"timestamp": "T (.*):\d{2}",', texto)
     fechas = ""
+    #Se sustituyen las fechas en cada arreglo recorriendo match, se emplea lambda (func anonima,pasandole el argumento m para identificar el grupo), para definir la iteracion, se podría definir una funcion diferente
     fechas = [re.sub(r'(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}).*', lambda m: f"{m.group(3)} de {meses[m.group(2)]} del {m.group(1)} a las {m.group(4)}:{m.group(5)} hs.", 
                     fecha) for fecha in match]
     return '\n'.join(fechas)

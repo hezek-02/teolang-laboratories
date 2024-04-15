@@ -5,7 +5,7 @@ import sys
 def prog(texto):
     match = re.findall(r'"user": "(.*?)",', texto)
     aux = list()
-    for usuario in list(dict.fromkeys(match)):
+    for usuario in list(dict.fromkeys(match)): #se eliminan duplicados dict from keys toma un representante de cada elemento y luego lo convierte en lista
             apariciones = len(re.findall(f'"user": "{usuario}",', texto))
             aux.append(f"{usuario}: {apariciones}")
     return '\n'.join(aux)
