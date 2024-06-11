@@ -9,13 +9,14 @@ import ssl
 #nltk.download('punkt')
 
 # grammar definition
-#elif (b != c):
-#for (a in range(87)):
+#Casos cariñosos:
+    #elif (b != c): no funcionaba si O-> '!='
+    #for (a in range(87)): no funcionaba si X -> V 'in range''('N')'
 grammar = """
 S -> A | C
 C -> 'if' '('B')'':' | 'elif' '('B')'':' | 'else:' | 'while' '('B')'':' | 'for' '('X')'':'
 A -> V '=' E | V '+=' E | V '-=' E 
-O -> '=''=' | '!''=' | '<' | '<''=' | '>' | '>''=' 
+O -> '=''=' | '!''=' | '<' | '<''=' | '>' | '>''='
 B -> E O E 
 E -> N | V
 X -> V 'in' 'range''('N')'
