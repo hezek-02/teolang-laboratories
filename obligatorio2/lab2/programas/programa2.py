@@ -32,16 +32,49 @@ def parse(s, grammar):
 
     # parse
     tree = list(parser.parse(s_tokenized))[:1]
-    if tree:
+    '''if tree:
         for i, tree in enumerate(tree):#dibujitos de arbolitos
-            #print(f"Arbolinho {i+1}:")
-            #tree.draw()
-            pass
+            print(f"Arbolinho {i+1}:")
+            tree.draw()
     else:
-        #print("NO TA")
-        pass
+        print("NO TA")
+    '''
     return tree
 
+#formatea cadenas donde le otorga precedencia a los operadores * y /. si la cadena original es 3 + 4 * 2 -> 3 + (4 * 2), se deben respetar los espacios de las entradas 
+#probar mas, idea encontrar operadores * y / y añadir parentesis a los numeros que estan a su alrededor
+def formateo_precedencias(s):
+    if s.__contains__('*') or s.__contains__('/') and  s.__contains__('+') or s.__contains__('-') :
+        #print(s)
+        s = '  ' + s + '  '
+        largo = len(s)
+        alterar = True
+        i = 0
+        while i < largo:
+            if (s[i] == '*' or s[i] == '/') :
+                j = i-1
+                h = i+1
+                while s[j] == ' ' and j > 0: #hasta encontrar numero o parentesis de cierre
+                    j = j - 1
+                if s[j] == ')':
+                    alterar = False #tiene cierre de parentesis hay mayor prec del lado izq
+                if alterar:    
+                    while s[j] != ' ' and s[j] !='(' and j > 0:
+                        j = j - 1
+                    if s[j] == '(': #ya tiene definida precedencia (o tira invalida)
+                        alterar = False
+                if alterar:
+                    s = s[:j]+" ("+s[j+1:]  #reemplazo espacio por parentesis y añado espacio atras del parentesis
+                    h += 1
+                    i += 1
+                    while s[h] == ' ' and h < largo+1:
+                        h = h + 1
+                    while s[h] != ' ' and h < largo+1:
+                        h = h + 1
+                    s = s[:h]+")"+s[h:] 
+                    i += 1
+            i += 1
+    return s 
 
 # de S O S a O(S,S), de N a N,no cuenta precedencia
 def transformation(tree):
@@ -54,6 +87,7 @@ def transformation(tree):
             if S != False and O != False:
                palabra = O.leaves()[0] + "(" + transformation(S) + "," + transformation(i) + ")"
             else:
+                S = i
                 palabra = transformation(S)
         elif type(i) is nltk.Tree and i.label() == 'O':
             O = i
@@ -69,6 +103,9 @@ if __name__ == '__main__':
     s = f.read()
     f.close()
     try:
+      #añade parentesis a las operaciones de mayor precedencia * y /
+      s = formateo_precedencias(s)
+      #print(s)         
       tree = parse(s, grammar)
       if tree:
         salida = transformation(tree)
