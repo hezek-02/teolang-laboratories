@@ -58,6 +58,11 @@ def formateo_precedencias(s):
                     j = j - 1
                 if s[j] == ')':
                     alterar = False #tiene cierre de parentesis hay mayor prec del lado izq
+                if alterar:
+                    while s[h] == ' ' and h < largo+1:
+                            h = h + 1
+                    if s[h] == '(': #ya tiene definida precedencia (o tira invalida)
+                        alterar = False
                 if alterar:    
                     while s[j] != ' ' and s[j] !='(' and j > 0:
                         j = j - 1
@@ -65,14 +70,12 @@ def formateo_precedencias(s):
                         alterar = False
                 if alterar:
                     s = s[:j]+" ("+s[j+1:]  #reemplazo espacio por parentesis y añado espacio atras del parentesis
-                    h += 1
-                    i += 1
-                    while s[h] == ' ' and h < largo+1:
-                        h = h + 1
+                    h += 1#añadi caracter aumento h
+                    i += 1#añadi caracter aumento i
                     while s[h] != ' ' and h < largo+1:
                         h = h + 1
                     s = s[:h]+")"+s[h:] 
-                    i += 1
+                    i += 1#añadi caracter aumento i
             i += 1
     return s 
 
