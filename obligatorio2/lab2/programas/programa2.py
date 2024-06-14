@@ -54,7 +54,6 @@ def transformation(tree):
             if S != False and O != False:
                palabra = O.leaves()[0] + "(" + transformation(S) + "," + transformation(i) + ")"
             else:
-                S = i
                 palabra = transformation(S)
         elif type(i) is nltk.Tree and i.label() == 'O':
             O = i
