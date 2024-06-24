@@ -43,61 +43,105 @@ def parse(s, grammar):
 
 #formatea cadenas donde le otorga precedencia a los operadores * y /. si la cadena original es 3 + 4 * 2 -> 3 + (4 * 2), se deben respetar los espacios de las entradas 
 #probar mas, idea encontrar operadores * y / y añadir parentesis a los numeros que estan a su alrededor
-def formateo_precedencias(s):
-    if s.__contains__('*') or s.__contains__('/') and  s.__contains__('+') or s.__contains__('-') :
-        #print(s)
-        s = '  ' + s + '  '
+
+def formateo_prec(s):
+    s = "  " + s + "  "
+    ocurrencias = 0
+    if "*" in s or "/" in s:
         largo = len(s)
-        alterar = True
         i = 0
         while i < largo:
-            if (s[i] == '*' or s[i] == '/') :
+            if s[i] == "*" or s[i] == "/": # si tiene * o /
+                print(i)
+                #LADO IZQUIERDO
                 j = i-1
-                h = i+1
-                while s[j] == ' ' and j > 0: #hasta encontrar numero o parentesis de cierre
-                    j = j - 1
-                if s[j] == ')':
-                    alterar = False #tiene cierre de parentesis hay mayor prec del lado izq
-                if alterar:
-                    while s[h] == ' ' and h < largo+1:
-                            h = h + 1
-                    if s[h] == '(': #ya tiene definida precedencia (o tira invalida)
-                        alterar = False
-                if alterar:    
-                    while s[j] != ' ' and s[j] !='(' and j > 0:
-                        j = j - 1
-                    if s[j] == '(': #ya tiene definida precedencia (o tira invalida)
-                        alterar = False
-                if alterar:
-                    s = s[:j]+" ("+s[j+1:]  #reemplazo espacio por parentesis y añado espacio atras del parentesis
-                    h += 1#añadi caracter aumento h
-                    i += 1#añadi caracter aumento i
-                    while s[h] != ' ' and h < largo+1:
-                        h = h + 1
-                    s = s[:h]+")"+s[h:] 
-                    i += 1#añadi caracter aumento i
-            i += 1
-    return s 
+                while s[j] == ' ' or s[j] == ')' or s[j] == '(': # iterar hasta hallar num
+                    j -= 1
+                    if s[j] == ')': #tener en cuenta parentesis de cierre
+                        ocurrencias+=1
+                    elif s[j] == '(' and ocurrencias > 0:
+                        ocurrencias-=1
 
+                while s[j] != ' ':#se hallo num, iterar hasta espacio vacio
+                    j -= 1
+                    if s[j] == ')': #tener en cuenta parentesis de cierre
+                        ocurrencias+=1
+                    elif  s[j] == '(' and ocurrencias > 0:
+                        ocurrencias-=1
+                
+                while  ocurrencias > 0 and j > 0: # espacio vacio pero aun parentesis sin cerrar
+                    j -= 1
+                    if s[j] == '(':
+                        ocurrencias -= 1
+                    elif s[j] == ')':
+                        ocurrencias += 1
+                
+                #LADO DERECHO
+                if ocurrencias == 0:
+                    k = i+1
+                    
+                    while s[k] == ' ' or s[k] == ')' or s[k] == '(':# iterar hasta hallar num, lado derecho
+                        k += 1
+                        if s[k] == '(': # tener en cuenta parentesis
+                            ocurrencias+=1
+                        elif s[k] == ')' and ocurrencias > 0:
+                            ocurrencias-=1    
+
+
+                    while s[k] != ' ':#iterar hasta espacio vacio
+                        k += 1
+                        if s[k] == '(':#tener en cuenta parentesis, no tiene mucho sentido aqui
+                            ocurrencias += 1
+                        elif  s[k] == ')' and ocurrencias > 0:
+                            ocurrencias-=1
+                    k += 1
+
+                    while ocurrencias > 0 and k < largo:# espacio vacio pero aun parentesis sin cerrar
+                        k += 1
+                        if s[k] == '(':
+                            ocurrencias += 1
+                        elif s[k] == ')':
+                            ocurrencias -= 1
+
+                    #print(s[j:k])
+                    if ocurrencias == 0:
+                        s = s[:j] + "(" + s[j:k]  + ")" + s[k:]
+            else:
+                i += 2
+    return s
 # de S O S a O(S,S), de N a N,no cuenta precedencia
+#3+4*2 -> +(*(4,2),3)
+#3 + 4 * 2 -> *(+(3,4),2)
 def transformation(tree):
     palabra = ""
-    S = False
+    S_rigth = False
+    S_left = False
     O = False
+    izq = ""
+    der = ""
     for i in tree:
-        #print(i)
+
+        '''if type(i) is nltk.Tree:
+            print(i.label())
+        else:
+            print(i)'''
+        
         if type(i) is nltk.Tree and i.label() == 'S':
-            if S != False and O != False:
-               palabra = O.leaves()[0] + "(" + transformation(S) + "," + transformation(i) + ")"
-            else:
-                S = i
-                palabra = transformation(S)
-        elif type(i) is nltk.Tree and i.label() == 'O':
-            O = i
+            if S_left:
+                S_rigth = i
+            else: 
+                S_left = i
+                palabra = transformation(S_left)
+            if S_left and S_rigth:
+                izq = palabra
+                der = transformation(S_rigth)
+                palabra = O + "(" + izq + "," + der + ")"
+        if type(i) is nltk.Tree and i.label() == 'O':
+            O = i.leaves()[0]
         elif type(i) is nltk.Tree and i.label() == 'N':
             palabra = i.leaves()[0]
     return palabra
-        
+
 
 if __name__ == '__main__':
     archivo_entrada = sys.argv[1]
@@ -107,11 +151,13 @@ if __name__ == '__main__':
     f.close()
     try:
       #añade parentesis a las operaciones de mayor precedencia * y /
-      s = formateo_precedencias(s)
-      #print(s)         
+      s = formateo_prec(s)
+      #print(s)
       tree = parse(s, grammar)
       if tree:
-        salida = transformation(tree)
+        palabra = transformation(tree)
+        #print("palabra: " + palabra)
+        salida = palabra
       else:
         salida = "NO PERTENECE"
     except ValueError:
